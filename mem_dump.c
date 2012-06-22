@@ -123,6 +123,11 @@ int addr_range_dump(unsigned int target, unsigned int numOfWords)
 	unsigned int map_base;
 	unsigned int virt_addr;
 
+	if (numOfWords > MAP_SIZE/sizeof(numOfWords)) {
+		printf("Number of Memory register dump request is exceding MAX Limit, which is %d. \n", MAP_SIZE/sizeof(numOfWords));
+		printf("Dumping only %d numbers of memory mapped registers. \n", MAP_SIZE/sizeof(numOfWords));
+		numOfWords = MAP_SIZE/sizeof(numOfWords);
+	}
 	fd = open("/dev/mem", O_RDWR | O_SYNC);
 	if (fd) {
 		map_base = (unsigned int) (unsigned int*) mmap(0, MAP_SIZE, PROT_READ

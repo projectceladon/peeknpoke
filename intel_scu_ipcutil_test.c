@@ -324,11 +324,11 @@ int msic_program (void)
 				choosed_msic_system = MSIC_MAX;
 				printf("\nChoose MSIC sub-system : ");
 				scanf("%d", &choosed_msic_system);
-				printf("\nYou have choosen %d : %s\n", choosed_msic_system, msic_system[choosed_msic_system].name);
 				if (choosed_msic_system < MSIC_CHIP_ID || choosed_msic_system >= MSIC_MAX) {
 					printf("\nInvalid MSIC Subsystem");
 					goto Exit;
 				}
+				printf("\nYou have choosen %d : %s\n", choosed_msic_system, msic_system[choosed_msic_system].name);
 			}
 			ret = msic_ioctl_operation(choice);
 		/* MSIC operation fails. Break this loop and exit from app*/
