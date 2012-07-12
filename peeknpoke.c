@@ -38,7 +38,9 @@ static void usage(void)
 				"\t n w to write to North Complex unit register\n"
 				"\t n r to read from North Complex unit register\n"
 				"\t p r to read from Port\n"
-				"\t p w to write to the Port\n");
+				"\t p w to write to the Port\n"
+				"\t b w to write to the PCI device\n"
+				"\t b r to read from the PCI device\n");
 }
 
 static int process_i2c_args(int argc, char **argv)
@@ -197,6 +199,73 @@ static int process_port_args(int argc, char **argv)
 	return status;
 }
 
+static int process_pci_args(int argc, char **argv)
+{
+	unsigned int bus;
+	unsigned int dev;
+	unsigned int func;
+	unsigned int reg;
+	int addr;
+	int result;
+	unsigned int value;
+	int status = 0;
+
+	if (argc < 7) {
+		printf("Usage to read:<r> <Bus in Hex without 0x prefix> "
+							"<Dev number in Hex without 0x prefix>"
+							"<Func number in Hex without 0x prefix>"
+							"<Reg number in Hex without 0x prefix>\n\n");
+		printf("Usage to write:<r> <Bus in Hex without 0x prefix> "
+							"<Dev number in Hex without 0x prefix>"
+							"<Func number in Hex without 0x prefix>"
+							"<Reg number in Hex without 0x prefix>"
+							"<Value to write in Hex without 0x prefix>\n");
+		return -1;
+	}
+
+	if (argv[2][0] == 'r' || argv[2][0] == 'R') {
+		if (argc != 7 ) {
+			printf("Usage to read:<r> <Bus in Hex without 0x prefix> "
+					"<Dev number in Hex without 0x prefix>"
+					"<Func number in Hex without 0x prefix>"
+					"<Reg number in Hex without 0x prefix>\n");
+			printf("Eg: to read data from Bus 0 Dev 0 Func 0 Reg 8 use\n"
+					" ./peeknpoke.out b r 0 0 0 9\n\n");
+		}
+		else {
+			hexstring_to_int(argv[6], &reg);
+			hexstring_to_int(argv[5], &func);
+			hexstring_to_int(argv[4], &dev);
+			hexstring_to_int(argv[3], &bus);
+			status = read_pci_reg(bus, dev, func, reg, &result);
+		}
+	}
+	else if (argv[2][0] == 'w' || argv[2][0] == 'W') {
+		if (argc != 8 ) {
+			printf("Usage to write:<r> <Bus in Hex without 0x prefix> "
+								"<Dev number in Hex without 0x prefix>"
+								"<Func number in Hex without 0x prefix>"
+								"<Reg number in Hex without 0x prefix>"
+								"<Value to write in Hex without 0x prefix>\n");
+			printf("Eg: to write data to Bus 0 Dev 0 Func 0 Reg 8 use\n"
+								" ./peeknpoke.out b w 0 0 0 9 ff\n\n");
+		}
+		else {
+			hexstring_to_int(argv[7], &value);
+			hexstring_to_int(argv[6], &reg);
+			hexstring_to_int(argv[5], &func);
+			hexstring_to_int(argv[4], &dev);
+			hexstring_to_int(argv[3], &bus);
+			status = write_pci_reg(bus, dev, func, reg, value);
+		}
+	}
+	else {
+		printf("\n***Invalid PCI operation\n");
+		status = -1;
+	}
+	return status;
+
+}
 /*
  *  ======== process_args ========
  *  Process command line arguments for this sample
@@ -309,6 +378,10 @@ static int process_args(int argc, char **argv) {
 
 	case 'p':
 		status = process_port_args(argc, argv);
+		break;
+
+	case 'b':
+		status = process_pci_args(argc, argv);
 		break;
 
 	case 'z':

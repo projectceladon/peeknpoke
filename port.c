@@ -26,6 +26,8 @@
 #define CUNIT_PATH          "/sys/devices/pci0000:00/0000:00:00.0/config"
 #define PORT_DEV 			"/dev/port"
 
+#define PCI_DEV_PATH		"/sys/devices/pci0000:00/000%d:00:0%d.%d/config"
+
 /*
  *  This function reads from the North complex port register
  */
@@ -184,6 +186,86 @@ int write_port(int port, int port_value)
 		printf("write failed ret = %d line %d\n", fd, __LINE__);
 		goto error;
 	}
+	return 0;
+
+error:
+	return -1;
+}
+
+/*
+ *  This function reads from the PCI config register
+ */
+int read_pci_reg(int bus, int dev, int func, int reg, int *port_value)
+{
+	static int fd = -1;
+	int ret;
+	int value;
+	char buf[128];
+
+	snprintf(buf, sizeof(buf), PCI_DEV_PATH, bus, dev, func);
+	fd = open(buf, O_RDWR | O_SYNC);
+	if (fd < 0) {
+		printf("open pci dev %s failed ret = %d line %d\n", buf, fd, __LINE__);
+		goto error;
+	}
+
+	ret = lseek(fd, reg, SEEK_SET);
+	if (ret < 0) {
+		printf("lseek failed ret = %d line %d\n", fd, __LINE__);
+		goto error;
+	}
+
+	ret = read(fd, &value, 4);
+	if (ret < 0) {
+		printf("read failed ret = %d line %d\n", fd, __LINE__);
+		goto error;
+	}
+
+	*port_value = value;
+
+	printf("PCI bus 0x%x dev 0x%x func 0x%x reg value 0x%x value 0x%x\n",
+											bus, dev, func, reg, value);
+	return 0;
+
+error:
+	return -1;
+}
+
+/*
+ *  This function writes to the PCI config register
+ */
+int write_pci_reg(int bus, int dev, int func, int reg, int value)
+{
+	static int fd = -1;
+	int ret;
+	char buf[128];
+
+	snprintf(buf, sizeof(buf), PCI_DEV_PATH, bus, dev, func);
+
+	fd = open(buf, O_RDWR | O_SYNC);
+	if (fd < 0) {
+		printf("open pci dev %s failed ret = %d line %d\n", buf, fd, __LINE__);
+		goto error;
+	}
+
+	ret = lseek(fd, reg, SEEK_SET);
+	if (ret < 0) {
+		printf("lseek failed ret = %d line %d\n", fd, __LINE__);
+		goto error;
+	}
+
+	ret = write(fd, &value, 4);
+	if (ret < 0) {
+		printf("write failed ret = %d line %d\n", fd, __LINE__);
+		goto error;
+	}
+
+	read_pci_reg(bus, dev, func, reg, &ret);
+	if (ret == value)
+		printf("Write OK\n");
+	else
+		printf("Write FAILED\n");
+
 	return 0;
 
 error:
