@@ -28,7 +28,6 @@ static void usage(void)
 				"\t r for Register read\n"
 				"\t w for Register write\n"
 				"\t d for Register range dump\n"
-				"\t m for MSIC accesses\n"
 				"\t m r to read MSIC register\n"
 				"\t m w to write MSIC register\n"
 				"\t s r to read MSR register\n"
@@ -313,8 +312,10 @@ static int process_args(int argc, char **argv) {
 		}
 		break;
 	case 'm':
-		if (argc == 2) {
-			msic_program();
+		if (argc < 3) {
+		printf("\n***Invalid argument list: check usage -\n");
+		usage();
+		return -1;
 		}
 		else {
 			if (argv[2][0] == 'r' || argv[2][0] == 'R') {
