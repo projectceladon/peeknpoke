@@ -50,7 +50,10 @@ static int process_i2c_args(int argc, char **argv)
 	unsigned int addr;
 	int result;
 	unsigned int value;
+	uint8_t *values;
 	int status = 0;
+	int i, j;
+	unsigned int array_size;
 
 	if (argc < 3) {
 		printf("\n***Invalid argument list: check usage -\n");
@@ -59,36 +62,90 @@ static int process_i2c_args(int argc, char **argv)
 	}
 
 	if (argv[2][0] == 'r' || argv[2][0] == 'R') {
-		if (argc != 7 ) {
+		if (argc < 7) {
 			printf("Usage to read:<r> <size: byte=2, word=3, data=5> <bus_no> "
 					"<bus_addr in Hex without 0x prefix> "
 					"<Hex registerAddress without 0x prefix>\n");
 			printf("Eg: to read word data from I2C bus 1 at address 0x36 and register 0x19 use\n"
-					" ./peeknpoke.out i r 3 1 36 19\n\n");
+					" ./peeknpoke i r 3 1 36 19\n\n");
 		}
 		else {
-			hexstring_to_int(argv[6], &reg);
-			hexstring_to_int(argv[5], &addr);
-			hexstring_to_int(argv[4], &bus);
 			hexstring_to_int(argv[3], &size);
-			status = read_i2c_device(bus, addr, reg, size, &result);
+			if (size == 5 || size == 8) {
+				if (argc != 8) {
+					printf("Usage to read:<r> <size: byte=2, word=3, data=5> <bus_no> "
+						"<bus_addr in Hex without 0x prefix> "
+						"<Hex registerAddress without 0x prefix> <block size to read>\n");
+					printf("Eg: to read 10 block data from I2C bus 1 at address 0x36 and register 0x19 use\n"
+						" ./peeknpoke i r 8 1 36 19 a\n\n");
+					status = -1;
+					return status;
+				}
+				hexstring_to_int(argv[7], &array_size);
+				if (array_size <= 0) {
+					printf("Please use the proper size to read\n");
+					status = -1;
+					return status;
+				}
+				values = malloc((array_size + 1) * sizeof(unsigned int));
+				if (!values) {
+					perror("Out of Memory\n");
+					status = -1;
+					return status;
+				}
+
+				hexstring_to_int(argv[6], &reg);
+				hexstring_to_int(argv[5], &addr);
+				hexstring_to_int(argv[4], &bus);
+				status = block_read_i2c_device(bus, addr, reg, size, array_size + 1, values);
+			}
+			else {
+				hexstring_to_int(argv[6], &reg);
+				hexstring_to_int(argv[5], &addr);
+				hexstring_to_int(argv[4], &bus);
+				status = read_i2c_device(bus, addr, reg, size, &result);
+			}
 		}
 	}
 	else if (argv[2][0] == 'w' || argv[2][0] == 'W') {
-		if (argc != 8) {
+		if (argc < 8) {
 			printf("Usage to Write:<w> <size: byte=2, word=3, data=5> <bus_no> "
 								"<bus_addr in Hex without 0x prefix> "
 								"<Hex registerAddress without 0x prefix>\n");
 			printf("Eg: to write word 0x10 to I2C bus 1 at address 0x36 and register 0x19 "
-								"\n./peeknpoke.out r 3 1 36 19 10\n\n");
+								"\n./peeknpoke w 3 1 36 19 10\n\n");
 		}
 		else {
-			hexstring_to_int(argv[7], &value);
-			hexstring_to_int(argv[6], &reg);
-			hexstring_to_int(argv[5], &addr);
-			hexstring_to_int(argv[4], &bus);
 			hexstring_to_int(argv[3], &size);
-			status = write_i2c_device(bus, addr, reg, size, value);
+			if (size == 5 || size == 8) {
+				array_size = argc - 8;
+				if(array_size <= 0) {
+					printf("Please use byte values to write\n");
+					status = -1;
+					return status;
+				}
+				values = malloc((array_size + 1) * sizeof(unsigned int));
+				if (!values) {
+					perror("Out of Memory\n");
+					status = -1;
+					return status;
+				}
+				for (i = argc, j = (argc - 8);i >= 8; i--, j-- ) {
+					hexstring_to_int(argv[i - 1], &value);
+					values[j] = value;
+				}
+				hexstring_to_int(argv[6], &reg);
+				hexstring_to_int(argv[5], &addr);
+				hexstring_to_int(argv[4], &bus);
+				status = block_write_i2c_device(bus, addr, reg, size, array_size, values);
+			}
+			else {
+				hexstring_to_int(argv[7], &value);
+				hexstring_to_int(argv[6], &reg);
+				hexstring_to_int(argv[5], &addr);
+				hexstring_to_int(argv[4], &bus);
+				status = write_i2c_device(bus, addr, reg, size, value);
+			}
 		}
 	}
 	else {

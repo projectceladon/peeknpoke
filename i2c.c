@@ -67,7 +67,6 @@ int write_i2c_device(char bus, int addr, int reg, int size, int value)
 
 
 	fd = open(i2c_dev, O_RDWR | O_SYNC);
-	printf("the value of /dev/i2c-2 is %d\n", fd);
 
 	if (fd == -1) {
 		printf("Error opening %d\n", fd);
@@ -106,11 +105,58 @@ int write_i2c_device(char bus, int addr, int reg, int size, int value)
 	args.size = size;
 	args.data = &data;
 	ret = ioctl(fd, DEF_I2C_SMBUS, &args);
-	printf("Value written = 0x%x, return value = %d\n", data.word, ret);
+	if (ret) {
+		printf("Failed to communicate with Device: error = %d\n", ret);
+		return ret;
+	}
 
 	return ret;
 
 }
+
+int block_write_i2c_device(char bus, int addr, int reg, int size, uint8_t array_size, uint8_t *values)
+{
+	struct i2c_smbus_ioctl_data args;
+	union i2c_smbus_data data;
+	char i2c_dev[15];
+	int fd;
+	int ret;
+
+	snprintf(i2c_dev, sizeof(i2c_dev), I2C_DEV_PATH, bus);
+
+	fd = open(i2c_dev, O_RDWR | O_SYNC);
+
+	if (fd == -1) {
+		printf("Error opening %d\n", fd);
+		return -1;
+	}
+
+	ret = ioctl(fd,  DEF_I2C_SLAVE_FORCE, addr);
+	if (fd == -1) {
+		printf("Error with the ioctl for address 0x%x\n", addr);
+		return -1;
+	}
+
+	if (array_size > (MAX_SMBUS_BLOCK_SIZE + 2)) {
+		printf("Error: data size for block transfer\n");
+		return -1;
+	}
+	data.block[0] = array_size;
+	memcpy(&data.block[1], values, array_size);
+	args.read_write = 0;
+	args.command = reg;
+	args.size = size;
+	args.data = &data;
+	ret = ioctl(fd, DEF_I2C_SMBUS, &args);
+	if (ret) {
+		printf("Failed to communicate with Device: error = %d\n", ret);
+		return ret;
+	}
+
+	return ret;
+
+}
+
 
 int read_i2c_device(char bus, int addr, int reg, int size, int *result)
 {
@@ -127,17 +173,12 @@ int read_i2c_device(char bus, int addr, int reg, int size, int *result)
 		printf("invalid input buffer \n");
 		return -1;
 	}
-	data.word = 0;
-
-
+	/*data.word = 0;*/
+	memset(&data, 0, sizeof(union i2c_smbus_data));
 	snprintf(i2c_dev, sizeof(i2c_dev), I2C_DEV_PATH, bus);
-
 	printf("%s\n", i2c_dev);
-
-
 	fd = open(i2c_dev, O_RDWR | O_SYNC);
 	printf("the value of /dev/i2c-%d is %d\n", bus, fd);
-
 	if (fd == -1) {
 		printf("Error opening %d\n", fd);
 		return -1;
@@ -176,14 +217,60 @@ int read_i2c_device(char bus, int addr, int reg, int size, int *result)
 		*result = data.word;
 	else if (size == SMBUS_BYTE_DATA)
 		*result = data.byte;
-	else if (size == SMBUS_BLOCK_DATA) {
-		num_values = data.block[0];
-		for (i = 1; i < num_values; i++)
-			printf("value read = 0x%x\n", data.block[i]);
+
+	printf("Result = 0x%x, reg=0x%x ret=0x%x\n", *result, reg, ret);
+	return 0;
+
+}
+
+int block_read_i2c_device(char bus, int addr, int reg, int size, uint8_t array_size, uint8_t *result)
+{
+
+	struct i2c_smbus_ioctl_data args;
+	union i2c_smbus_data data;
+	char i2c_dev[15];
+	int fd;
+	int ret = 0;
+	int i;
+	int num_values;
+
+	if (result == NULL) {
+		printf("invalid input buffer \n");
+		return -1;
 	}
 
-	printf("Result = 0x%x, reg=0x%x\n", *result, reg);
+	memset(&data, 0, sizeof(union i2c_smbus_data));
+	snprintf(i2c_dev, sizeof(i2c_dev), I2C_DEV_PATH, bus);
+	fd = open(i2c_dev, O_RDWR | O_SYNC);
+	if (fd == -1) {
+		printf("Error opening %d\n", fd);
+		return -1;
+	}
 
+	ret = ioctl(fd,  DEF_I2C_SLAVE_FORCE, addr);
+	if (ret == -1) {
+		printf("Error with the ioctl for address 0x%x\n", addr);
+		return -1;
+	}
+
+	data.block[0] = array_size - 1;
+	args.size = size;
+	args.read_write = 1;
+	args.command = reg;
+	args.data = &data;
+	ret = ioctl(fd, DEF_I2C_SMBUS, &args);
+	if (ret) {
+		printf("Failed to communicate with Device: error = %d\n", ret);
+		return ret;
+	}
+
+	if (size == SMBUS_BLOCK_DATA || size == I2C_SMBUS_BLOCK_DATA) {
+		num_values = array_size;
+		for (i = 1; i < num_values; i++)
+			printf("value read = 0x%x ret=0x%x\n", data.block[i], ret);
+	}
+
+	memcpy(result, &data.block[1], array_size);
 	return 0;
 
 }

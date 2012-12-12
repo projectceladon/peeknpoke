@@ -33,9 +33,12 @@
 #define SMBUS_BYTE_DATA	    		2
 #define SMBUS_WORD_DATA	    		3
 #define SMBUS_BLOCK_DATA	    	5
+#define I2C_SMBUS_BLOCK_DATA	    	8
 
 int read_i2c_device(char bus, int addr, int reg, int size, int *result);
 int write_i2c_device(char bus, int addr, int reg, int size, int value);
+int block_write_i2c_device(char bus, int addr, int reg, int size, uint8_t array_size, uint8_t *values);
+int block_read_i2c_device(char bus, int addr, int reg, int size, uint8_t array_size, uint8_t *result);
 
 int msic_program (void);
 void msic_read(unsigned short target);
