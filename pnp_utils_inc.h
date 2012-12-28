@@ -30,6 +30,8 @@
 #include <unistd.h>
 #include <ctype.h>
 
+#define VERSION_INFO			1.1
+
 #define SMBUS_BYTE_DATA	    		2
 #define SMBUS_WORD_DATA	    		3
 #define SMBUS_BLOCK_DATA	    	5

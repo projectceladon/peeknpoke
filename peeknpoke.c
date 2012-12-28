@@ -39,7 +39,8 @@ static void usage(void)
 				"\t p r to read from Port\n"
 				"\t p w to write to the Port\n"
 				"\t b w to write to the PCI device\n"
-				"\t b r to read from the PCI device\n");
+				"\t b r to read from the PCI device\n"
+				"\t v to get the version for peeknpoke\n");
 }
 
 static int process_i2c_args(int argc, char **argv)
@@ -440,6 +441,10 @@ static int process_args(int argc, char **argv) {
 
 	case 'b':
 		status = process_pci_args(argc, argv);
+		break;
+
+	case 'v':
+		printf("peeknpoke version %.2f (INTEL DEBUG TOOL)\n", VERSION_INFO);
 		break;
 
 	case 'z':
