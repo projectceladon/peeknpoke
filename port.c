@@ -232,6 +232,53 @@ error:
 }
 
 /*
+ *  This function dumps from the PCI config register
+ */
+int read_pci_dump(int bus, int dev, int func)
+{
+	static int fd = -1;
+	int ret, i;
+	int value;
+	char *p;
+	int lim, lim1;
+	char buf[128];
+
+	snprintf(buf, sizeof(buf), PCI_DEV_PATH, bus, dev, func);
+	fd = open(buf, O_RDWR | O_SYNC);
+	if (fd < 0) {
+		printf("open pci dev %s failed ret = %d line %d\n", buf, fd, __LINE__);
+		goto error;
+	}
+
+	ret = lseek(fd, 0, SEEK_SET);
+	if (ret < 0) {
+		printf("lseek failed ret = %d line %d\n", fd, __LINE__);
+		goto error;
+	}
+
+	for(lim = 0; lim <= 255; ) {
+		printf("%02x: ", lim);
+		for(lim1 = 0; lim1 <= 3; lim1++) {
+			lim += 4;
+			ret = read(fd, &value, 4);
+			if (ret < 0) {
+				printf("read failed ret = %d line %d\n", fd, __LINE__);
+				goto error;
+			}
+			p = &value;
+			for (i = 0; i < 4; i++, p++)
+				printf("%02x ", *p & 0xff);
+		}
+		printf("\n");
+	}
+
+	return 0;
+
+error:
+	return -1;
+}
+
+/*
  *  This function writes to the PCI config register
  */
 int write_pci_reg(int bus, int dev, int func, int reg, int value)

@@ -40,6 +40,7 @@ static void usage(void)
 				"\t p w to write to the Port\n"
 				"\t b w to write to the PCI device\n"
 				"\t b r to read from the PCI device\n"
+				"\t b d to dump config space from the PCI device\n"
 				"\t v to get the version for peeknpoke\n");
 }
 
@@ -267,7 +268,10 @@ static int process_pci_args(int argc, char **argv)
 	unsigned int value;
 	int status = 0;
 
-	if (argc < 7) {
+	if (argc < 6) {
+		printf("Usage to dump:<d> <Bus in Hex without 0x prefix> "
+							"<Dev number in Hex without 0x prefix>"
+							"<Func number in Hex without 0x prefix>\n\n");
 		printf("Usage to read:<r> <Bus in Hex without 0x prefix> "
 							"<Dev number in Hex without 0x prefix>"
 							"<Func number in Hex without 0x prefix>"
@@ -280,7 +284,23 @@ static int process_pci_args(int argc, char **argv)
 		return -1;
 	}
 
-	if (argv[2][0] == 'r' || argv[2][0] == 'R') {
+	if (argv[2][0] == 'd' || argv[2][0] == 'D') {
+		if (argc != 6) {
+			printf("Usage to read:<r> <Bus in Hex without 0x prefix> "
+					"<Dev number in Hex without 0x prefix>"
+					"<Func number in Hex without 0x prefix>\n");
+			printf("Eg: to dump data from Bus 0 Dev 0 Func 0 use\n"
+					" ./peeknpok b d 0 0 0\n\n");
+		}
+		else {
+			hexstring_to_int(argv[5], &func);
+			hexstring_to_int(argv[4], &dev);
+			hexstring_to_int(argv[3], &bus);
+			status = read_pci_dump(bus, dev, func);
+		}
+	}
+
+	else if (argv[2][0] == 'r' || argv[2][0] == 'R') {
 		if (argc != 7 ) {
 			printf("Usage to read:<r> <Bus in Hex without 0x prefix> "
 					"<Dev number in Hex without 0x prefix>"

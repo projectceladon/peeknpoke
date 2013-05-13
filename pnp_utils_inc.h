@@ -64,5 +64,6 @@ int write_port(int port, int port_value);
 
 int write_pci_reg(int bus, int dev, int func, int reg, int port_value);
 int read_pci_reg(int bus, int dev, int func, int reg, int *port_value);
+int read_pci_dump(int bus, int dev, int func);
 
 #endif /* PNP_UTILS_INC_H_ */
