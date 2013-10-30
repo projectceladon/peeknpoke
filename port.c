@@ -26,7 +26,7 @@
 #define CUNIT_PATH          "/sys/devices/pci0000:00/0000:00:00.0/config"
 #define PORT_DEV 			"/dev/port"
 
-#define PCI_DEV_PATH		"/sys/devices/pci0000:00/000%d:00:0%d.%d/config"
+#define PCI_DEV_PATH		"/sys/devices/pci0000:00/%04x:00:%02x.%x/config"
 
 /*
  *  This function reads from the North complex port register
