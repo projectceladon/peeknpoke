@@ -37,7 +37,7 @@ uint64_t msr_reg_read(int cpu, unsigned int reg_offset, int print_enabled)
 	snprintf(buf, sizeof(buf), msrdev_path, cpu);
 	fd = open(buf, O_RDONLY | O_SYNC);
 
-	if (fd > 0) {
+	if (fd >= 0) {
 		if (pread(fd, &temp, sizeof(uint64_t), reg_offset)) {
 			if (print_enabled)
 				printf("MSR value of 0x%x offset is 0x%llx\n", reg_offset, temp);
@@ -68,7 +68,7 @@ int msr_reg_write(int cpu, unsigned int reg_offset, uint64_t value)
 	snprintf(buf, sizeof(buf), msrdev_path, cpu);
 	fd = open(buf, O_RDWR | O_SYNC);
 
-	if (fd > 0) {
+	if (fd >= 0) {
 		if (pwrite(fd, &value, sizeof(uint64_t), reg_offset) == sizeof(uint64_t)) {
 			pread(fd, &temp, sizeof(uint64_t), reg_offset);
 			if (temp != value) {

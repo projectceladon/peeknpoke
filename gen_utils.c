@@ -64,12 +64,12 @@ int hexstring_to_long(const char* hexString, uint64_t* result)
 {
 	int i;
 	int temp;
-	int factor;
+	uint64_t factor;
 	int length;
 	int status = 0;
 
 	length = strlen(hexString);
-	if ((length == 0) || (length > 8))
+	if ((length == 0) || (length > 16))
 		return -1;
 	*result = 0;
 	factor = 1;
@@ -83,8 +83,8 @@ int hexstring_to_long(const char* hexString, uint64_t* result)
 			} else {
 				temp = *(hexString + i) - 48;
 			}
-			*result += (temp * factor);
-			factor *= 16;
+			*result += ((uint64_t)temp * factor);
+			factor *= 16ULL;
 		} else {
 			/* Conversion was abnormally terminated by
 			 non hexadecimal digit */
