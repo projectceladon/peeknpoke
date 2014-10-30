@@ -18,6 +18,8 @@
  * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <inttypes.h>
+
 #include "pnp_utils_inc.h"
 
 #define msrdev_path	"/dev/msr%d"
@@ -40,7 +42,7 @@ uint64_t msr_reg_read(int cpu, unsigned int reg_offset, int print_enabled)
 	if (fd >= 0) {
 		if (pread(fd, &temp, sizeof(uint64_t), reg_offset)) {
 			if (print_enabled)
-				printf("MSR value of 0x%x offset is 0x%llx\n", reg_offset, temp);
+				printf("MSR value of 0x%x offset is 0x%" PRIu64 "\n", reg_offset, temp);
 			goto exit;
 		}
 	} else {
@@ -72,13 +74,13 @@ int msr_reg_write(int cpu, unsigned int reg_offset, uint64_t value)
 		if (pwrite(fd, &value, sizeof(uint64_t), reg_offset) == sizeof(uint64_t)) {
 			pread(fd, &temp, sizeof(uint64_t), reg_offset);
 			if (temp != value) {
-				printf("Cannot set 0x%llx to MSR 0x%x \n", value, reg_offset);
+				printf("Cannot set 0x%" PRIu64 " to MSR 0x%x\n", value, reg_offset);
 				status = -1;
 				goto exit;
 			}
 		} else {
-			printf("Cannot write to %s reg 0x%x value of 0x%llx\n",
-											buf, reg_offset, value);
+			printf("Cannot write to %s reg 0x%x value of 0x%" PRIu64 "\n",
+			       buf, reg_offset, value);
 			status = -1;
 			goto exit;
 		}

@@ -30,14 +30,14 @@ int reg_read(unsigned int target, unsigned int dataBitSize)
 	unsigned int read_val = 0;
 	int status = 0;
 	int fd;
-	void *map_base;
-	void *virt_addr;
+	char *map_base;
+	char *virt_addr;
 
 	fd = open("/dev/mem", O_RDWR | O_SYNC);
 	if (fd >= 0) {
 		map_base = mmap(0, MAP_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd,
 				target & ~MAP_MASK);
-		if (map_base == (void *) -1) {
+		if (map_base == MAP_FAILED) {
 			printf("Failed to do memory mapping \n");
 			return -1;
 		}
@@ -45,7 +45,7 @@ int reg_read(unsigned int target, unsigned int dataBitSize)
 		printf("Failed opening /dev/mem file\n");
 		return -2;
 	}
-	virt_addr = (void *)((unsigned int)map_base + (target & MAP_MASK));
+	virt_addr = map_base + (target & MAP_MASK);
 
 	switch (dataBitSize) {
 	case 32:
@@ -75,14 +75,14 @@ int reg_write(unsigned int target, unsigned int dataBitSize, unsigned int value)
 {
 	int status = 0;
 	int fd;
-	void *map_base;
-	void *virt_addr;
+	char *map_base;
+	char *virt_addr;
 
 	fd = open("/dev/mem", O_RDWR | O_SYNC);
 	if (fd) {
 		map_base = mmap(0, MAP_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd,
 				target & ~MAP_MASK);
-		if (map_base == (void *) -1) {
+		if (map_base == MAP_FAILED) {
 			printf("Failed to do memory mapping \n");
 			return -1;
 		}
@@ -90,7 +90,7 @@ int reg_write(unsigned int target, unsigned int dataBitSize, unsigned int value)
 		printf("Failed opening /dev/mem file\n");
 		return -2;
 	}
-	virt_addr = (void *)((unsigned int)map_base + (target & MAP_MASK));
+	virt_addr = map_base + (target & MAP_MASK);
 
 	switch (dataBitSize) {
 	case 32:
@@ -120,19 +120,19 @@ int addr_range_dump(unsigned int target, unsigned int numOfWords)
 	unsigned int read_val = 0;
 	int status = 0;
 	int fd;
-	unsigned int map_base;
-	unsigned int virt_addr;
+	char *map_base;
+	char *virt_addr;
 
 	if (numOfWords > MAP_SIZE/sizeof(numOfWords)) {
-		printf("Number of Memory register dump request is exceding MAX Limit, which is %d. \n", MAP_SIZE/sizeof(numOfWords));
-		printf("Dumping only %d numbers of memory mapped registers. \n", MAP_SIZE/sizeof(numOfWords));
+		printf("Number of Memory register dump request is exceding MAX Limit, which is %lu. \n", MAP_SIZE/sizeof(numOfWords));
+		printf("Dumping only %lu numbers of memory mapped registers. \n", MAP_SIZE/sizeof(numOfWords));
 		numOfWords = MAP_SIZE/sizeof(numOfWords);
 	}
 	fd = open("/dev/mem", O_RDWR | O_SYNC);
 	if (fd) {
-		map_base = (unsigned int) (unsigned int*) mmap(0, MAP_SIZE, PROT_READ
-				| PROT_WRITE, MAP_SHARED, fd, target & ~MAP_MASK);
-		if ((int)map_base == -1) {
+		map_base = mmap(0, MAP_SIZE, PROT_READ	| PROT_WRITE, MAP_SHARED, fd,
+				target & ~MAP_MASK);
+		if (map_base == MAP_FAILED) {
 			printf("Failed to do memory mapping \n");
 			return -1;
 		}

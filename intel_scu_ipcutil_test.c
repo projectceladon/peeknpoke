@@ -51,7 +51,7 @@ struct scu_ipc_data {
 static bool msic_ioctl_operation(int choice)
 {
 	int fd = -1;
-	int nc = 0;
+	unsigned long nc = 0;
 	bool ret = FALSE;
 	unsigned short base_res = 0x00;
 	int offset = 0;
@@ -71,7 +71,7 @@ static bool msic_ioctl_operation(int choice)
 		case INTE_SCU_IPC_REGISTER_READ:
 			printf("\nEnter Register Address(s) without 0x prefixed(MAX FOUR and then ends with *) : ");
 			while (getchar() != '*') {		//TODO need to change the logic here
-				scanf("%x", &ipc_data.addr[ipc_data.count]);
+				scanf("%hx", &ipc_data.addr[ipc_data.count]);
 				ipc_data.count += 1;
 			}
 			ipc_data.count -= 1;	// TODO need to change the logic here
@@ -97,7 +97,7 @@ static bool msic_ioctl_operation(int choice)
 
 		case INTE_SCU_IPC_REGISTER_WRITE:
 			printf("\nEnter Register Address and Value to be written (Both without 0x prefixed) : ");
-			scanf("%x %x", &ipc_data.addr[ipc_data.count], &temp_data);
+			scanf("%hx %hx", &ipc_data.addr[ipc_data.count], &temp_data);
 
 
 			ipc_data.data[ipc_data.count] = temp_data;

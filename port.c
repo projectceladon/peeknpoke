@@ -265,7 +265,7 @@ int read_pci_dump(int bus, int dev, int func)
 				printf("read failed ret = %d line %d\n", fd, __LINE__);
 				goto error;
 			}
-			p = &value;
+			p = (char*)&value;
 			for (i = 0; i < 4; i++, p++)
 				printf("%02x ", *p & 0xff);
 		}
