@@ -42,7 +42,7 @@ uint64_t msr_reg_read(int cpu, unsigned int reg_offset, int print_enabled)
 	if (fd >= 0) {
 		if (pread(fd, &temp, sizeof(uint64_t), reg_offset)) {
 			if (print_enabled)
-				printf("MSR value of 0x%x offset is 0x%" PRIu64 "\n", reg_offset, temp);
+				printf("MSR value of 0x%x offset is 0x%" PRIx64 "\n", reg_offset, temp);
 			goto exit;
 		}
 	} else {
@@ -79,7 +79,7 @@ int msr_reg_write(int cpu, unsigned int reg_offset, uint64_t value)
 				goto exit;
 			}
 		} else {
-			printf("Cannot write to %s reg 0x%x value of 0x%" PRIu64 "\n",
+			printf("Cannot write to %s reg 0x%x value of 0x%" PRIx64 "\n",
 			       buf, reg_offset, value);
 			status = -1;
 			goto exit;
