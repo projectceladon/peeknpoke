@@ -33,9 +33,9 @@ int reg_read(unsigned int target, unsigned int dataBitSize)
 	char *map_base;
 	char *virt_addr;
 
-	fd = open("/dev/mem", O_RDWR | O_SYNC);
+	fd = open64("/dev/mem", O_RDWR | O_SYNC);
 	if (fd >= 0) {
-		map_base = mmap(0, MAP_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd,
+		map_base = mmap64(0, MAP_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd,
 				target & ~MAP_MASK);
 		if (map_base == MAP_FAILED) {
 			printf("Failed to do memory mapping \n");
@@ -78,9 +78,9 @@ int reg_write(unsigned int target, unsigned int dataBitSize, unsigned int value)
 	char *map_base;
 	char *virt_addr;
 
-	fd = open("/dev/mem", O_RDWR | O_SYNC);
+	fd = open64("/dev/mem", O_RDWR | O_SYNC);
 	if (fd) {
-		map_base = mmap(0, MAP_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd,
+		map_base = mmap64(0, MAP_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd,
 				target & ~MAP_MASK);
 		if (map_base == MAP_FAILED) {
 			printf("Failed to do memory mapping \n");
@@ -128,9 +128,9 @@ int addr_range_dump(unsigned int target, unsigned int numOfWords)
 		printf("Dumping only %lu numbers of memory mapped registers. \n", MAP_SIZE/sizeof(numOfWords));
 		numOfWords = MAP_SIZE/sizeof(numOfWords);
 	}
-	fd = open("/dev/mem", O_RDWR | O_SYNC);
+	fd = open64("/dev/mem", O_RDWR | O_SYNC);
 	if (fd) {
-		map_base = mmap(0, MAP_SIZE, PROT_READ	| PROT_WRITE, MAP_SHARED, fd,
+		map_base = mmap64(0, MAP_SIZE, PROT_READ	| PROT_WRITE, MAP_SHARED, fd,
 				target & ~MAP_MASK);
 		if (map_base == MAP_FAILED) {
 			printf("Failed to do memory mapping \n");
