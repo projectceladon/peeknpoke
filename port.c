@@ -22,6 +22,7 @@
 #define PUNIT_PORT			0x04
 #define PCI_READ_COMMAND	0x10
 #define PCI_WRITE_COMMAND	0x11
+#define PCI_CTRL_REG_EXT	0xD8
 
 #define CUNIT_PATH          "/sys/devices/pci0000:00/0000:00:00.0/config"
 #define PORT_DEV 			"/dev/port"
@@ -35,8 +36,7 @@ int read_nc_port(int reg, int port, int *ret_val)
 {
 	static int fd = -1;
 	unsigned int val;
-	int cmd = (PCI_READ_COMMAND << 24) | (port << 16) |
-							(reg << 8) | (0xf0) ;
+	int cmd;
 	int ret, value;
 
 	if (fd < 0)
@@ -46,6 +46,20 @@ int read_nc_port(int reg, int port, int *ret_val)
 		goto error;
 	}
 
+	cmd = reg & 0xFFFFFF00;
+	ret = lseek(fd, PCI_CTRL_REG_EXT, SEEK_SET);
+	if (ret < 0) {
+		printf("lseek failed ret = %d line %d\n", ret, __LINE__);
+		goto error;
+	}
+
+	ret = write(fd, &cmd, 4);
+	if (ret < 0) {
+		printf("write failed ret = %d line %d\n", ret, __LINE__);
+		goto error;
+	}
+
+	cmd = (PCI_READ_COMMAND << 24) | (port << 16) | ((reg & 0xFF) << 8) | (0xf0);
 	ret = lseek(fd, 0xD0, SEEK_SET);
 	if (ret < 0) {
 		printf("lseek failed ret = %d line %d\n", fd, __LINE__);
@@ -86,8 +100,7 @@ int write_nc_port(int reg, int port, int value)
 {
 	static int fd = -1;
 	unsigned int val;
-	int cmd = (PCI_WRITE_COMMAND << 24) | (port << 16) |
-							(reg << 8) | (0xf0);
+	int cmd;
 	int ret;
 
 	if (fd < 0)
@@ -96,6 +109,20 @@ int write_nc_port(int reg, int port, int value)
 		printf("open CUNIT_PATH ret = %d line %d\n", fd, __LINE__);
 		return -1;
 	}
+
+	cmd = reg & 0xFFFFFF00;
+	ret = lseek(fd, PCI_CTRL_REG_EXT, SEEK_SET);
+	if (ret < 0) {
+		printf("lseek failed ret = %d line %d\n", ret, __LINE__);
+		goto error;
+	}
+
+	ret = write(fd, &cmd, 4);
+	if (ret < 0) {
+		printf("write failed ret = %d line %d\n", ret, __LINE__);
+		goto error;
+	}
+
 	ret = lseek(fd, 0xD4, SEEK_SET);
 	if (ret < 0) {
 		printf("lseek failed ret = %d line %d\n", fd, __LINE__);
@@ -108,6 +135,7 @@ int write_nc_port(int reg, int port, int value)
 		goto error;
 	}
 
+	cmd = (PCI_WRITE_COMMAND << 24) | (port << 16) | ((reg & 0xFF) << 8) | (0xf0);
 	ret = lseek(fd, 0xD0, SEEK_SET);
 	if (ret < 0) {
 		printf("lseek failed ret = %d line %d\n", fd, __LINE__);
