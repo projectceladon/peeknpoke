@@ -12,4 +12,5 @@ LOCAL_SRC_FILES := \
     msr.c \
     i2c.c \
     port.c
+LOCAL_PROPRIETARY_MODULE := true
 include $(BUILD_EXECUTABLE)
