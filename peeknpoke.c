@@ -1,7 +1,7 @@
 /*
  * peeknpoke
  *
- * Copyright (c) 2012, Intel Corporation.
+ * Copyright (c) 2012-2016, Intel Corporation.
  * Hari Kanigeri <hari.k.kanigeri@intel.com>
  * Asutosh Pathak <asutosh.pathak@intel.com>
  *
@@ -111,22 +111,34 @@ static int process_i2c_args(int argc, char **argv)
 	}
 	else if (argv[2][0] == 'w' || argv[2][0] == 'W') {
 		if (argc < 8) {
-			printf("Usage to Write:<w> <size: byte=2, word=3, data=5> <bus_no> "
+			printf("Usage to Write:<w> <size: byte=2, word=3, data=5 OR 8> <bus_no> "
 								"<bus_addr in Hex without 0x prefix> "
-								"<Hex registerAddress without 0x prefix>\n");
-			printf("Eg: to write word 0x10 to I2C bus 1 at address 0x36 and register 0x19 "
-								"\n./peeknpoke w 3 1 36 19 10\n\n");
+								"<Hex registerAddress without 0x prefix>\n\n");
+
+			printf("data=5 (I2C_SMBUS_BLOCK_DATA): I2C frame format: [START|bus_addr|reg_addr|byte_count|data0|...|dataN|STOP]"
+								"\n./peeknpoke i w 5 1 36 19 10 15 45\n"
+								"I2C frame format: [START|36|19|3|10|15|45|STOP]\n\n");
+
+			printf("data=8 (I2C_SMBUS_I2C_BLOCK_DATA): I2C frame format: [START|bus_addr|reg_addr|data0|...|dataN|STOP]"
+								"\n./peeknpoke i w 8 1 36 19 10 15 45\n"
+								"I2C frame format: [START|36|19|10|15|45|STOP]\n\n");
+
+			printf("Eg: to write word 0x10 to I2C bus 1 at address 0x36 and register 0x19"
+								"\n./peeknpoke i w 3 1 36 19 10\n\n");
 		}
 		else {
 			hexstring_to_int(argv[3], &size);
 			if (size == 5 || size == 8) {
-				array_size = argc - 8;
-				if(array_size <= 0) {
+
+                                array_size = argc - 7;
+
+				/* To send 1 byte, the Byte Mode has to be used */
+				if (array_size <= 1) {
 					printf("Please use byte values to write\n");
 					status = -1;
 					return status;
 				}
-				values = malloc((array_size + 1) * sizeof(unsigned int));
+				values = malloc((array_size) * sizeof(unsigned int));
 				if (!values) {
 					perror("Out of Memory\n");
 					status = -1;
