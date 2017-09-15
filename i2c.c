@@ -137,7 +137,7 @@ int block_write_i2c_device(char bus, int addr, int reg, int size, uint8_t array_
 		return -1;
 	}
 
-	if (array_size > (MAX_SMBUS_BLOCK_SIZE + 2)) {
+	if (array_size > (MAX_SMBUS_BLOCK_SIZE + 1)) {
 		printf("Error: data size for block transfer\n");
 		return -1;
 	}
