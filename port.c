@@ -35,7 +35,6 @@
 int read_nc_port(int reg, int port, int *ret_val)
 {
 	static int fd = -1;
-	unsigned int val;
 	int cmd;
 	int ret, value;
 
@@ -99,7 +98,6 @@ error:
 int write_nc_port(int reg, int port, int value)
 {
 	static int fd = -1;
-	unsigned int val;
 	int cmd;
 	int ret;
 

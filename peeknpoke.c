@@ -174,7 +174,6 @@ static int process_nc_args(int argc, char **argv)
 {
 	unsigned int port;
 	unsigned int reg;
-	int addr;
 	int result;
 	unsigned int value;
 	int status = 0;
@@ -226,8 +225,6 @@ static int process_nc_args(int argc, char **argv)
 static int process_port_args(int argc, char **argv)
 {
 	unsigned int port;
-	int reg;
-	int addr;
 	int result;
 	unsigned int value;
 	int status = 0;
@@ -275,7 +272,6 @@ static int process_pci_args(int argc, char **argv)
 	unsigned int dev;
 	unsigned int func;
 	unsigned int reg;
-	int addr;
 	int result;
 	unsigned int value;
 	int status = 0;

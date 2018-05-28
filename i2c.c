@@ -166,8 +166,6 @@ int read_i2c_device(char bus, int addr, int reg, int size, int *result)
 	char i2c_dev[15];
 	int fd;
 	int ret;
-	int i;
-	int num_values;
 
 	if (result == NULL) {
 		printf("invalid input buffer \n");

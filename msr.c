@@ -30,7 +30,6 @@
  */
 uint64_t msr_reg_read(int cpu, unsigned int reg_offset, int print_enabled)
 {
-	unsigned int read_val = 0;
 	char buf[128];
 	uint64_t temp = 0;
 	int fd;
@@ -61,7 +60,6 @@ exit:
  */
 int msr_reg_write(int cpu, unsigned int reg_offset, uint64_t value)
 {
-	unsigned int read_val = 0;
 	char buf[128];
 	int fd;
 	uint64_t temp;
