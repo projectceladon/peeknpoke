@@ -39,6 +39,7 @@ int reg_read(unsigned int target, unsigned int dataBitSize)
 				target & ~MAP_MASK);
 		if (map_base == MAP_FAILED) {
 			printf("Failed to do memory mapping \n");
+			close(fd);
 			return -1;
 		}
 	} else {
@@ -79,11 +80,12 @@ int reg_write(unsigned int target, unsigned int dataBitSize, unsigned int value)
 	char *virt_addr;
 
 	fd = open64("/dev/mem", O_RDWR | O_SYNC);
-	if (fd) {
+	if (fd > 0) {
 		map_base = mmap64(0, MAP_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd,
 				target & ~MAP_MASK);
 		if (map_base == MAP_FAILED) {
 			printf("Failed to do memory mapping \n");
+			close(fd);
 			return -1;
 		}
 	} else {
@@ -104,6 +106,7 @@ int reg_write(unsigned int target, unsigned int dataBitSize, unsigned int value)
 		break;
 	default:
 		printf("ILLEGAL dataBitSize: Enter 8, 16, or 32 bits \n");
+		close(fd);
 		return -1;
 	}
 	if (munmap(map_base, MAP_SIZE) == -1)
@@ -118,7 +121,6 @@ int reg_write(unsigned int target, unsigned int dataBitSize, unsigned int value)
 int addr_range_dump(unsigned int target, unsigned int numOfWords)
 {
 	unsigned int read_val = 0;
-	int status = 0;
 	int fd;
 	char *map_base;
 	char *virt_addr;
@@ -129,11 +131,12 @@ int addr_range_dump(unsigned int target, unsigned int numOfWords)
 		numOfWords = MAP_SIZE/sizeof(numOfWords);
 	}
 	fd = open64("/dev/mem", O_RDWR | O_SYNC);
-	if (fd) {
+	if (fd > 0) {
 		map_base = mmap64(0, MAP_SIZE, PROT_READ	| PROT_WRITE, MAP_SHARED, fd,
 				target & ~MAP_MASK);
 		if (map_base == MAP_FAILED) {
 			printf("Failed to do memory mapping \n");
+			close(fd);
 			return -1;
 		}
 	} else {
@@ -154,5 +157,5 @@ int addr_range_dump(unsigned int target, unsigned int numOfWords)
 	if (munmap((unsigned int*) map_base, MAP_SIZE) == -1)
 		printf("Memory Unmap failed \n");
 	close(fd);
-	return status;
+	return 0;
 }

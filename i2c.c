@@ -74,8 +74,9 @@ int write_i2c_device(char bus, int addr, int reg, int size, int value)
 	}
 
 	ret = ioctl(fd,  DEF_I2C_SLAVE_FORCE, addr);
-	if (fd == -1) {
+	if (ret == -1) {
 		printf("Error with the ioctl for address 0x%x\n", addr);
+		close(fd);
 		return -1;
 	}
 
@@ -97,6 +98,7 @@ int write_i2c_device(char bus, int addr, int reg, int size, int value)
 #endif
 	default:
 		printf("Error size provided %d\n", size);
+		close(fd);
 		return -1;
 	}
 
@@ -107,9 +109,10 @@ int write_i2c_device(char bus, int addr, int reg, int size, int value)
 	ret = ioctl(fd, DEF_I2C_SMBUS, &args);
 	if (ret) {
 		printf("Failed to communicate with Device: error = %d\n", ret);
+		close(fd);
 		return ret;
 	}
-
+	close(fd);
 	return ret;
 
 }
@@ -132,13 +135,15 @@ int block_write_i2c_device(char bus, int addr, int reg, int size, uint8_t array_
 	}
 
 	ret = ioctl(fd,  DEF_I2C_SLAVE_FORCE, addr);
-	if (fd == -1) {
+	if (ret == -1) {
 		printf("Error with the ioctl for address 0x%x\n", addr);
+		close(fd);
 		return -1;
 	}
 
 	if (array_size > (MAX_SMBUS_BLOCK_SIZE + 1)) {
 		printf("Error: data size for block transfer\n");
+		close(fd);
 		return -1;
 	}
 	data.block[0] = array_size;
@@ -150,9 +155,11 @@ int block_write_i2c_device(char bus, int addr, int reg, int size, uint8_t array_
 	ret = ioctl(fd, DEF_I2C_SMBUS, &args);
 	if (ret) {
 		printf("Failed to communicate with Device: error = %d\n", ret);
+		close(fd);
 		return ret;
 	}
 
+	close(fd);
 	return ret;
 
 }
@@ -185,6 +192,7 @@ int read_i2c_device(char bus, int addr, int reg, int size, int *result)
 	ret = ioctl(fd,  DEF_I2C_SLAVE_FORCE, addr);
 	if (ret == -1) {
 		printf("Error with the ioctl for address 0x%x\n", addr);
+		close(fd);
 		return -1;
 	}
 
@@ -248,6 +256,7 @@ int block_read_i2c_device(char bus, int addr, int reg, int size, uint8_t array_s
 	ret = ioctl(fd,  DEF_I2C_SLAVE_FORCE, addr);
 	if (ret == -1) {
 		printf("Error with the ioctl for address 0x%x\n", addr);
+		close(fd);
 		return -1;
 	}
 
@@ -259,6 +268,7 @@ int block_read_i2c_device(char bus, int addr, int reg, int size, uint8_t array_s
 	ret = ioctl(fd, DEF_I2C_SMBUS, &args);
 	if (ret) {
 		printf("Failed to communicate with Device: error = %d\n", ret);
+		close(fd);
 		return ret;
 	}
 

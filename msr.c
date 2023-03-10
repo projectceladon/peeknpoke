@@ -51,7 +51,7 @@ uint64_t msr_reg_read(int cpu, unsigned int reg_offset, int print_enabled)
 	}
 
 exit:
-	close(fd);
+	if (fd >= 0) close(fd);
 	return status;
 }
 
@@ -89,6 +89,6 @@ int msr_reg_write(int cpu, unsigned int reg_offset, uint64_t value)
 	}
 
 exit:
-	close(fd);
+	if (fd >= 0) close(fd);
 	return status;
 }
