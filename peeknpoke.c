@@ -52,7 +52,7 @@ static int process_i2c_args(int argc, char **argv)
 	unsigned int addr;
 	int result;
 	unsigned int value;
-	uint8_t *values;
+	uint8_t *values = NULL;
 	int status = 0;
 	int i, j;
 	unsigned int array_size;
@@ -166,7 +166,9 @@ static int process_i2c_args(int argc, char **argv)
 		printf("\n***Invalid I2C operation\n");
 		status = -1;
 	}
-
+	if (values) {
+		free(values);
+	}
 	return status;
 }
 
