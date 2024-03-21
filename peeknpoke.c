@@ -166,7 +166,8 @@ static int process_i2c_args(int argc, char **argv)
 		printf("\n***Invalid I2C operation\n");
 		status = -1;
 	}
-
+	if (values)
+	    free(values);
 	return status;
 }
 
@@ -493,7 +494,7 @@ static int process_args(int argc, char **argv) {
 int main(int argc, char **argv) {
 	int status = 0;
 
-	process_args(argc, argv);
+	status = process_args(argc, argv);
 	return status;
 }
 

@@ -47,7 +47,7 @@ uint64_t msr_reg_read(int cpu, unsigned int reg_offset, int print_enabled)
 	} else {
 		printf("Cannot open %s\n", buf);
 		status = -1;
-		goto exit;
+		return status;
 	}
 
 exit:
@@ -86,6 +86,7 @@ int msr_reg_write(int cpu, unsigned int reg_offset, uint64_t value)
 	} else {
 		printf("Cannot open %s\n", buf);
 		status = -1;
+		return status;
 	}
 
 exit:
