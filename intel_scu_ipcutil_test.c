@@ -95,7 +95,7 @@ void msic_write(unsigned short msic_addr, unsigned short data)
 	if (ioctl(fd, INTE_SCU_IPC_REGISTER_WRITE, &ipc_data)) {
 		printf("\nError issuing while Writing MSIC register");
 	}
-
+	close(fd);
 	return;
 }
 

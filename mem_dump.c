@@ -39,6 +39,7 @@ int reg_read(unsigned int target, unsigned int dataBitSize)
 				target & ~MAP_MASK);
 		if (map_base == MAP_FAILED) {
 			printf("Failed to do memory mapping \n");
+			close(fd);
 			return -1;
 		}
 	} else {
@@ -59,7 +60,7 @@ int reg_read(unsigned int target, unsigned int dataBitSize)
 		break;
 	default:
 		printf("ILLEGAL dataBitSize: Enter 8, 16, or 32 bits \n");
-		return -1;
+		status = -1;
 	}
 	printf(" The value of register 0x%x is 0x%x\n", target, read_val);
 	if (munmap(map_base, MAP_SIZE) == -1)
@@ -84,6 +85,7 @@ int reg_write(unsigned int target, unsigned int dataBitSize, unsigned int value)
 				target & ~MAP_MASK);
 		if (map_base == MAP_FAILED) {
 			printf("Failed to do memory mapping \n");
+			close(fd);
 			return -1;
 		}
 	} else {
@@ -104,7 +106,7 @@ int reg_write(unsigned int target, unsigned int dataBitSize, unsigned int value)
 		break;
 	default:
 		printf("ILLEGAL dataBitSize: Enter 8, 16, or 32 bits \n");
-		return -1;
+		status = -1;
 	}
 	if (munmap(map_base, MAP_SIZE) == -1)
 		printf("Memory Unmap failed \n");
@@ -134,6 +136,7 @@ int addr_range_dump(unsigned int target, unsigned int numOfWords)
 				target & ~MAP_MASK);
 		if (map_base == MAP_FAILED) {
 			printf("Failed to do memory mapping \n");
+			close(fd);
 			return -1;
 		}
 	} else {
