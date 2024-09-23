@@ -44,6 +44,8 @@ static void usage(void)
 				"\t v to get the version for peeknpoke\n");
 }
 
+// Define a maximum allowed size to prevent excessive memory allocation
+#define I2C_SMBUS_BLOCK_MAX 32  /* As specified in SMBus standard */
 static int process_i2c_args(int argc, char **argv)
 {
 	unsigned int bus;
@@ -84,7 +86,7 @@ static int process_i2c_args(int argc, char **argv)
 					return status;
 				}
 				hexstring_to_int(argv[7], &array_size);
-				if (array_size <= 0) {
+				if (array_size == 0 || array_size > (I2C_SMBUS_BLOCK_MAX + 2)) {
 					printf("Please use the proper size to read\n");
 					status = -1;
 					return status;

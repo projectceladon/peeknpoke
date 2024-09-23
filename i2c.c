@@ -270,7 +270,7 @@ int block_read_i2c_device(char bus, int addr, int reg, int size, uint8_t array_s
 	}
 
 	if (size == SMBUS_BLOCK_DATA || size == I2C_SMBUS_BLOCK_DATA) {
-		num_values = array_size;
+		num_values = array_size - 1;
 		for (i = 1; i < num_values; i++)
 			printf("value read = 0x%x ret=0x%x\n", data.block[i], ret);
 	}
