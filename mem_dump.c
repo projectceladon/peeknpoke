@@ -93,6 +93,9 @@ int reg_write(unsigned int target, unsigned int dataBitSize, unsigned int value)
 		}
 	} else {
 		printf("Failed opening /dev/mem file\n");
+		if (fd != -1) {
+			close(fd); // Close the file descriptor if it's not -1
+		}
 		return -2;
 	}
 	virt_addr = map_base + (target & MAP_MASK);
@@ -144,6 +147,9 @@ int addr_range_dump(unsigned int target, unsigned int numOfWords)
 		}
 	} else {
 		printf("Failed opening /dev/mem file\n");
+		if (fd != -1) {
+			close(fd); // Close the file descriptor if it's not -1
+		}
 		return -2;
 	}
 	virt_addr = map_base + (target & MAP_MASK);
