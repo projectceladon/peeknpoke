@@ -28,7 +28,7 @@
 /*
  *  This function reads from requested MSR address
  */
-uint64_t msr_reg_read(int cpu, unsigned int reg_offset, int print_enabled)
+int msr_reg_read(int cpu, unsigned int reg_offset, int print_enabled)
 {
 	char buf[128];
 	uint64_t temp = 0;
