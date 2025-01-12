@@ -54,7 +54,7 @@ int addr_range_dump(unsigned int target, unsigned int numOfWords);
 int reg_write(unsigned int target, unsigned int dataBitSize, unsigned int value);
 int reg_read(unsigned int target, unsigned int dataBitSize);
 
-uint64_t msr_reg_read(int cpu, unsigned int reg_offset, int print_enabled);
+int msr_reg_read(int cpu, unsigned int reg_offset, int print_enabled);
 int msr_reg_write(int cpu, unsigned int reg_offset, uint64_t value);
 
 int read_nc_port(int v, int port, int *ret_val);
