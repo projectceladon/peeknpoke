@@ -25,7 +25,7 @@
 /*
  *  This function reads the and prints the requested register value.
  */
-int reg_read(unsigned int target, unsigned int dataBitSize)
+int reg_read(off_t target, unsigned int dataBitSize)
 {
 	unsigned int read_val = 0;
 	int status = 0;
@@ -33,9 +33,9 @@ int reg_read(unsigned int target, unsigned int dataBitSize)
 	char *map_base;
 	char *virt_addr;
 
-	fd = open64("/dev/mem", O_RDWR | O_SYNC);
+	fd = open("/dev/mem", O_RDWR | O_SYNC);
 	if (fd >= 0) {
-		map_base = mmap64(0, MAP_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd,
+		map_base = mmap(0, MAP_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd,
 				target & ~MAP_MASK);
 		if (map_base == MAP_FAILED) {
 			printf("Failed to do memory mapping \n");
@@ -63,11 +63,11 @@ int reg_read(unsigned int target, unsigned int dataBitSize)
 		status = -1;
 		goto failed;
 	}
-	printf(" The value of register 0x%x is 0x%x\n", target, read_val);
-	if (munmap(map_base, MAP_SIZE) == -1)
-		printf("Memory Unmap failed \n");
+	printf(" The value of register 0x%lx is 0x%x\n", target, read_val);
 
 failed:
+	if (munmap(map_base, MAP_SIZE) == -1)
+		printf("Memory Unmap failed \n");
 	close(fd);
 	return status;
 }
@@ -75,16 +75,16 @@ failed:
 /*
  *  This function writes to the requested register value.
  */
-int reg_write(unsigned int target, unsigned int dataBitSize, unsigned int value)
+int reg_write(off_t target, unsigned int dataBitSize, unsigned int value)
 {
 	int status = 0;
 	int fd;
 	char *map_base;
 	char *virt_addr;
 
-	fd = open64("/dev/mem", O_RDWR | O_SYNC);
-	if (fd > 0) {
-		map_base = mmap64(0, MAP_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd,
+	fd = open("/dev/mem", O_RDWR | O_SYNC);
+	if (fd >= 0) {
+		map_base = mmap(0, MAP_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd,
 				target & ~MAP_MASK);
 		if (map_base == MAP_FAILED) {
 			printf("Failed to do memory mapping \n");
@@ -109,8 +109,6 @@ int reg_write(unsigned int target, unsigned int dataBitSize, unsigned int value)
 		break;
 	default:
 		printf("ILLEGAL dataBitSize: Enter 8, 16, or 32 bits \n");
-		close(fd);
-		return -1;
 	}
 	if (munmap(map_base, MAP_SIZE) == -1)
 		printf("Memory Unmap failed \n");
@@ -121,7 +119,7 @@ int reg_write(unsigned int target, unsigned int dataBitSize, unsigned int value)
 /*
  *  This function dumps the requested number of words
  */
-int addr_range_dump(unsigned int target, unsigned int numOfWords)
+int addr_range_dump(off_t target, unsigned int numOfWords)
 {
 	unsigned int read_val = 0;
 	int fd;
@@ -133,9 +131,9 @@ int addr_range_dump(unsigned int target, unsigned int numOfWords)
 		printf("Dumping only %lu numbers of memory mapped registers. \n", MAP_SIZE/sizeof(numOfWords));
 		numOfWords = MAP_SIZE/sizeof(numOfWords);
 	}
-	fd = open64("/dev/mem", O_RDWR | O_SYNC);
-	if (fd > 0) {
-		map_base = mmap64(0, MAP_SIZE, PROT_READ	| PROT_WRITE, MAP_SHARED, fd,
+	fd = open("/dev/mem", O_RDWR | O_SYNC);
+	if (fd >= 0) {
+		map_base = mmap(0, MAP_SIZE, PROT_READ	| PROT_WRITE, MAP_SHARED, fd,
 				target & ~MAP_MASK);
 		if (map_base == MAP_FAILED) {
 			printf("Failed to do memory mapping \n");
@@ -152,7 +150,7 @@ int addr_range_dump(unsigned int target, unsigned int numOfWords)
 	read_val = (*(volatile unsigned int *) (virt_addr));
 	while (numOfWords != 0) {
 		read_val = *(volatile unsigned int *) (virt_addr);
-		printf(" 0x%x....... 0x%x\n", target, read_val);
+		printf(" 0x%lx....... 0x%x\n", target, read_val);
 		virt_addr = virt_addr + 4;
 		target = target + 4;
 		numOfWords--;

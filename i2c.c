@@ -36,7 +36,6 @@ struct i2c_message {
 	uint8_t *buf;	/* pointer to msg data */
 };
 
-#define MAX_SMBUS_BLOCK_SIZE 		32
 #define DEF_I2C_SLAVE_FORCE			0x0706
 #define DEF_I2C_SMBUS				0x0720
 
