@@ -36,6 +36,7 @@
 #define SMBUS_WORD_DATA	    		3
 #define SMBUS_BLOCK_DATA	    	5
 #define I2C_SMBUS_BLOCK_DATA	    	8
+#define MAX_SMBUS_BLOCK_SIZE 		32
 
 int read_i2c_device(char bus, int addr, int reg, int size, int *result);
 int write_i2c_device(char bus, int addr, int reg, int size, int value);
@@ -49,10 +50,10 @@ void msic_write(unsigned short target, unsigned short value);
 int hexstring_to_int(const char* hexString, unsigned int* result);
 int hexstring_to_long(const char* hexString, uint64_t* result);
 
-int addr_range_dump(unsigned int target, unsigned int numOfWords);
+int addr_range_dump(off_t target, unsigned int numOfWords);
 
-int reg_write(unsigned int target, unsigned int dataBitSize, unsigned int value);
-int reg_read(unsigned int target, unsigned int dataBitSize);
+int reg_write(off_t target, unsigned int dataBitSize, unsigned int value);
+int reg_read(off_t target, unsigned int dataBitSize);
 
 int msr_reg_read(int cpu, unsigned int reg_offset, int print_enabled);
 int msr_reg_write(int cpu, unsigned int reg_offset, uint64_t value);
