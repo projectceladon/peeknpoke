@@ -84,7 +84,7 @@ static int process_i2c_args(int argc, char **argv)
 					return status;
 				}
 				hexstring_to_int(argv[7], &array_size);
-				if (array_size <= 0) {
+				if (array_size == 0 || array_size > MAX_SMBUS_BLOCK_SIZE ) {
 					printf("Please use the proper size to read\n");
 					status = -1;
 					return status;
